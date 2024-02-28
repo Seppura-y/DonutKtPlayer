@@ -15,16 +15,10 @@ class VideosFragment : Fragment() {
 //        val binding = FragmentVideosBinding.bind(view)
 
         val binding = FragmentVideosBinding.inflate(inflater, container, false)
-        val tempList = ArrayList<String>()
-        tempList.add("First Video")
-        tempList.add("Second Video")
-        tempList.add("Third Video")
-        tempList.add("Fourth Video")
-        tempList.add("Fifth Video")
         binding.videoRecyclerView.setHasFixedSize(true)
         binding.videoRecyclerView.setItemViewCacheSize(10)
         binding.videoRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.videoRecyclerView.adapter = VideoAdapter(requireContext(), tempList)
+        binding.videoRecyclerView.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
         return binding.root
 //        return view
     }

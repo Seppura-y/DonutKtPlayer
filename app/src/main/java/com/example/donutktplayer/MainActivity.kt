@@ -1,9 +1,12 @@
 package com.example.donutktplayer
 
 import android.Manifest.permission
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.icu.text.CaseMap.Fold
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.MediaStore.Video
 import android.view.MenuItem
 import android.widget.Toast
@@ -13,12 +16,22 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.donutktplayer.databinding.ActivityMainBinding
+import java.io.File
+import java.lang.Exception
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
+    companion object {
+        // Used to load the 'donutktplayer' library on application startup.
+        init {
+            System.loadLibrary("donutktplayer")
+        }
+
+        lateinit var videoList: ArrayList<com.example.donutktplayer.Video>
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.coolPinkNav)
         setContentView(binding.root)
 
-        requestRuntimePermission()
+//        requestRuntimePermission()
 
         // 程序一开始就打开drawer
 //        binding.root.openDrawer(GravityCompat.START);
@@ -43,7 +56,11 @@ class MainActivity : AppCompatActivity() {
         //设置ActionBar的显示选项, true表示显示返回按钮
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        setFragment(VideosFragment())
+        if(requestRuntimePermission() == true){
+            videoList = getAllVideos()
+            setFragment(VideosFragment())
+        }
+
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             Toast.makeText(this@MainActivity, "Item Clicked", Toast.LENGTH_SHORT).show()
@@ -110,12 +127,46 @@ class MainActivity : AppCompatActivity() {
             return true
         return super.onOptionsItemSelected(item)
     }
-    external fun stringFromJNI(): String
 
-    companion object {
-        // Used to load the 'donutktplayer' library on application startup.
-        init {
-            System.loadLibrary("donutktplayer")
-        }
+    @SuppressLint("Recycle", "InlineApi","Range")
+//    @SuppressLint("Range")
+    private fun getAllVideos(): ArrayList<com.example.donutktplayer.Video>{
+        val tempList = ArrayList<com.example.donutktplayer.Video>()
+
+        val projection = arrayOf(MediaStore.Video.Media.TITLE,
+            MediaStore.Video.Media.SIZE,
+            MediaStore.Video.Media._ID,
+            MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
+            MediaStore.Video.Media.DATA,
+            MediaStore.Video.Media.DATE_ADDED,
+            MediaStore.Video.Media.DURATION)
+
+        val cursor = this.contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null,
+            MediaStore.Video.Media.DATE_ADDED + " DESC")
+
+        if(cursor != null)
+            if(cursor.moveToNext())
+                do{
+                    val titleC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE))
+                    val idC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media._ID))
+                    val folderC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME))
+                    val sizeC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.SIZE))
+                    val pathC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA))
+                    val durationC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DURATION)).toLong()
+
+                    try{
+                        val file = File(pathC)
+                        val artUriC = Uri.fromFile(file)
+                        val video = com.example.donutktplayer.Video(title = titleC, id = idC, folderName = folderC, duration = durationC, size = sizeC,
+                            path = pathC, artUri = artUriC)
+                        if(file.exists()) tempList.add(video)
+
+                    }catch (e:Exception){}
+
+                }while (cursor.moveToNext())
+
+                cursor?.close()
+        return  tempList
     }
+    external fun stringFromJNI(): String
 }
