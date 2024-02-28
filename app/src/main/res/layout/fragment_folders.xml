@@ -8,15 +8,16 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/total_folders"
         android:textColor="@color/black"
         android:layout_margin="10dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/videoRecyclerView"
+        android:id="@+id/folderRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical"
+        android:scrollbarThumbVertical="@drawable/scrollbar_icon"/>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
