@@ -5,6 +5,8 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.donutktplayer.databinding.VideoViewBinding
 
 //写法1
@@ -13,6 +15,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         val title = binding.videoName
         val folder = binding.folderName
         val duration = binding.duration
+        val image = binding.videoImage
     }
 
     // 写法1
@@ -26,6 +29,11 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         holder.title.text = videoList[position].title
         holder.folder.text = videoList[position].folderName
         holder.duration.text = DateUtils.formatElapsedTime(videoList[position].duration/1000)
+        Glide.with(context)
+            .asBitmap()
+            .load(videoList[position].artUri)
+            .apply(RequestOptions().placeholder(R.mipmap.ic_video_player).centerCrop())
+            .into(holder.image)
     }
 
     override fun getItemCount(): Int {
