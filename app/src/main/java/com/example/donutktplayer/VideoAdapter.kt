@@ -1,9 +1,11 @@
 package com.example.donutktplayer
 
 import android.content.Context
+import android.content.Intent
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -16,6 +18,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         val folder = binding.folderName
         val duration = binding.duration
         val image = binding.videoImage
+        val root = binding.root
     }
 
     // 写法1
@@ -34,6 +37,11 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
             .load(videoList[position].artUri)
             .apply(RequestOptions().placeholder(R.mipmap.ic_video_player).centerCrop())
             .into(holder.image)
+
+        holder.root.setOnClickListener {
+            val intent = Intent(context, PlayerActivity::class.java)
+            ContextCompat.startActivity(context, intent, null)
+        }
     }
 
     override fun getItemCount(): Int {
