@@ -17,6 +17,7 @@ class FoldersFragment : Fragment() {
         binding.folderRecyclerView.setItemViewCacheSize(10)
         binding.folderRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.folderRecyclerView.adapter = FolderAdapter(requireContext(), MainActivity.folderList)
+        binding.totalFolders.text = "Total Folders: ${MainActivity.folderList.size}"
         return binding.root
     }
 

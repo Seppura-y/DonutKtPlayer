@@ -19,6 +19,7 @@ class VideosFragment : Fragment() {
         binding.videoRecyclerView.setItemViewCacheSize(10)
         binding.videoRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.videoRecyclerView.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
+        binding.totalVideos.text = "Total Videos: ${MainActivity.videoList.size}"
         return binding.root
 //        return view
     }
