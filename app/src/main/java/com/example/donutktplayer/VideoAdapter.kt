@@ -10,7 +10,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.donutktplayer.databinding.VideoViewBinding
 
 //写法1
-class VideoAdapter(private val context: Context, private var videoList: ArrayList<Video>) : RecyclerView.Adapter<VideoAdapter.VideoHolder>() {
+class VideoAdapter(private val context: Context, private var videoList: ArrayList<VideoData>) : RecyclerView.Adapter<VideoAdapter.VideoHolder>() {
     class VideoHolder(binding: VideoViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.videoName
         val folder = binding.folderName

@@ -13,17 +13,10 @@ class FoldersFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentFoldersBinding.inflate(inflater, container, false)
 
-        val tempList = ArrayList<String>()
-        tempList.add("a folder")
-        tempList.add("b folder")
-        tempList.add("c folder")
-        tempList.add("d folder")
-        tempList.add("e folder")
-
         binding.folderRecyclerView.setHasFixedSize(true)
         binding.folderRecyclerView.setItemViewCacheSize(10)
         binding.folderRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.folderRecyclerView.adapter = FolderAdapter(requireContext(), tempList)
+        binding.folderRecyclerView.adapter = FolderAdapter(requireContext(), MainActivity.folderList)
         return binding.root
     }
 

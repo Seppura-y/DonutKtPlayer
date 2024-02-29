@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.example.donutktplayer.databinding.FolderViewBinding
 
-class FolderAdapter(private val context: Context, private var folderList: ArrayList<String>) : RecyclerView.Adapter<FolderAdapter.FolderHolder>() {
+class FolderAdapter(private val context: Context, private var folderList: ArrayList<FolderData>) : RecyclerView.Adapter<FolderAdapter.FolderHolder>() {
     class FolderHolder(binding: FolderViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val folderName = binding.folderNameFV
     }
@@ -18,7 +18,7 @@ class FolderAdapter(private val context: Context, private var folderList: ArrayL
 
 
     override fun onBindViewHolder(holder: FolderAdapter.FolderHolder, position: Int) {
-        holder.folderName.text = folderList[position]
+        holder.folderName.text = folderList[position].folderName
     }
 
     override fun getItemCount(): Int {

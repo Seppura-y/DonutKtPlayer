@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Video
+import android.provider.MediaStore.Video.Media
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -30,7 +31,8 @@ class MainActivity : AppCompatActivity() {
             System.loadLibrary("donutktplayer")
         }
 
-        lateinit var videoList: ArrayList<com.example.donutktplayer.Video>
+        lateinit var videoList: ArrayList<VideoData>
+        lateinit var folderList: ArrayList<FolderData>
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         if(requestRuntimePermission() == true){
+            folderList = ArrayList()
             videoList = getAllVideos()
             setFragment(VideosFragment())
         }
@@ -130,8 +133,10 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("Recycle", "InlineApi","Range")
 //    @SuppressLint("Range")
-    private fun getAllVideos(): ArrayList<com.example.donutktplayer.Video>{
-        val tempList = ArrayList<com.example.donutktplayer.Video>()
+    private fun getAllVideos(): ArrayList<VideoData>{
+        val tempList = ArrayList<VideoData>()
+
+        val tempFolderList = ArrayList<String>()
 
         val projection = arrayOf(MediaStore.Video.Media.TITLE,
             MediaStore.Video.Media.SIZE,
@@ -139,7 +144,8 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
             MediaStore.Video.Media.DATA,
             MediaStore.Video.Media.DATE_ADDED,
-            MediaStore.Video.Media.DURATION)
+            MediaStore.Video.Media.DURATION,
+            MediaStore.Video.Media.BUCKET_ID)
 
         val cursor = this.contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null,
             MediaStore.Video.Media.DATE_ADDED + " DESC")
@@ -150,6 +156,7 @@ class MainActivity : AppCompatActivity() {
                     val titleC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE))
                     val idC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media._ID))
                     val folderC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME))
+                    val folderIdC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID))
                     val sizeC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.SIZE))
                     val pathC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA))
                     val durationC = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DURATION)).toLong()
@@ -157,9 +164,15 @@ class MainActivity : AppCompatActivity() {
                     try{
                         val file = File(pathC)
                         val artUriC = Uri.fromFile(file)
-                        val video = com.example.donutktplayer.Video(title = titleC, id = idC, folderName = folderC, duration = durationC, size = sizeC,
+                        val video = VideoData(title = titleC, id = idC, folderName = folderC, duration = durationC, size = sizeC,
                             path = pathC, artUri = artUriC)
                         if(file.exists()) tempList.add(video)
+
+
+                        if(!tempFolderList.contains(folderC)){
+                            tempFolderList.add(folderC)
+                            folderList.add(FolderData(id = folderIdC, folderName = folderC))
+                        }
 
                     }catch (e:Exception){}
 
