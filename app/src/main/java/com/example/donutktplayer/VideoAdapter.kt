@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.donutktplayer.databinding.VideoViewBinding
 
 //写法1
-class VideoAdapter(private val context: Context, private var videoList: ArrayList<VideoData>) : RecyclerView.Adapter<VideoAdapter.VideoHolder>() {
+class VideoAdapter(private val context: Context, private var videoList: ArrayList<VideoData>, private val isFolder: Boolean = false) : RecyclerView.Adapter<VideoAdapter.VideoHolder>() {
     class VideoHolder(binding: VideoViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.videoName
         val folder = binding.folderName
@@ -39,13 +39,26 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
             .into(holder.image)
 
         holder.root.setOnClickListener {
-            val intent = Intent(context, PlayerActivity::class.java)
-            ContextCompat.startActivity(context, intent, null)
+            when{
+                isFolder->{
+                    sendIntent(pos = position, ref = "FolderActivity")
+                }
+                else->{
+                    sendIntent(pos = position, ref = "AllVideos")
+                }
+            }
         }
     }
 
     override fun getItemCount(): Int {
         return videoList.size
+    }
+
+    private fun sendIntent(pos: Int, ref: String){
+        PlayerActivity.position = pos
+        val intent = Intent(context, PlayerActivity::class.java)
+        intent.putExtra("class", ref)
+        ContextCompat.startActivity(context, intent, null)
     }
 }
 

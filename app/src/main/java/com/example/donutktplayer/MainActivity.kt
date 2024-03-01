@@ -115,6 +115,9 @@ class MainActivity : AppCompatActivity() {
             //如果是，表示用户同意了权限请求，使用Toast类，向用户显示提示信息“Permission Granted”。
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+                folderList = ArrayList()
+                videoList = getAllVideos()
+                setFragment(VideosFragment())
             } else {
                 //如果不是，表示用户拒绝了权限请求，它再次创建一个字符串数组，包含要请求的权限，然后使用ActivityCompat.requestPermissions方法，向用户再次发起权限请求。
                 //这是为了让用户有机会重新考虑，或者在设置中手动开启权限。

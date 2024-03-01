@@ -35,7 +35,7 @@ class FolderActivity : AppCompatActivity() {
         binding.videoRecyclerViewFragmentActivity.setHasFixedSize(true)
         binding.videoRecyclerViewFragmentActivity.setItemViewCacheSize(10)
         binding.videoRecyclerViewFragmentActivity.layoutManager = LinearLayoutManager(this@FolderActivity)
-        binding.videoRecyclerViewFragmentActivity.adapter = VideoAdapter(this, currentFolderVideos)
+        binding.videoRecyclerViewFragmentActivity.adapter = VideoAdapter(this, currentFolderVideos, isFolder = true)
         binding.totalVideos.text = "Total Videos: ${currentFolderVideos.size}"
         //LinearLayoutManager(this):
             //  这里的this关键字指的是当前的Context对象，通常是Activity的实例。
