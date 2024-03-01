@@ -37,6 +37,9 @@ class PlayerActivity : AppCompatActivity() {
         createPlayer()
     }
     private fun createPlayer(){
+        binding.videoTitle.text = playerList[position].title
+        // isSelected设置为true，才能开启滚动效果
+        binding.videoTitle.isSelected = true
         player = SimpleExoPlayer.Builder(this).build()
         binding.playerView.player = player
 
