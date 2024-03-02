@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.icu.text.CaseMap.Fold
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Video
@@ -42,7 +43,11 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.coolPinkNav)
         setContentView(binding.root)
 
-//        requestRuntimePermission()
+        if(requestRuntimePermission() == true){
+            folderList = ArrayList()
+            videoList = getAllVideos()
+            setFragment(VideosFragment())
+        }
 
         // 程序一开始就打开drawer
 //        binding.root.openDrawer(GravityCompat.START);
@@ -58,11 +63,6 @@ class MainActivity : AppCompatActivity() {
         //设置ActionBar的显示选项, true表示显示返回按钮
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if(requestRuntimePermission() == true){
-            folderList = ArrayList()
-            videoList = getAllVideos()
-            setFragment(VideosFragment())
-        }
 
 
         binding.bottomNav.setOnItemSelectedListener { item ->
@@ -96,14 +96,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestRuntimePermission(): Boolean? {
-        if (ActivityCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            val p = arrayOf(permission.WRITE_EXTERNAL_STORAGE)
-            ActivityCompat.requestPermissions(this, p, 13)
-            // 返回false，表示没有权限。
-            return false
+        //android 13 permission request
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_VIDEO)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_MEDIA_VIDEO), 13)
+                return false
+            }
+            return true
         }
 
-        // 返回true，表示已经拥有权限
+        //requesting storage permission for only devices less than api 28
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P){
+            if(ActivityCompat.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(permission.WRITE_EXTERNAL_STORAGE),13)
+                return false
+            }
+        }else{
+            //read external storage permission for devices higher than android 10 i.e. api 29
+            if(ActivityCompat.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(permission.READ_EXTERNAL_STORAGE),14)
+                return false
+            }
+        }
         return true
     }
 

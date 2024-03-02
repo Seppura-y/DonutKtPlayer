@@ -25,6 +25,7 @@
         
 
         <ImageButton
+            android:id="@+id/backBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/back_icon"
@@ -70,6 +71,7 @@
         app:tint="@color/white" />
 
     <ImageButton
+        android:id="@+id/playPauseBtn"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:contentDescription="@string/play_btn"
