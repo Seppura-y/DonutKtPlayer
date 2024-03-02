@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 
 class PlayerActivity : AppCompatActivity() {
@@ -21,6 +22,7 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var player: SimpleExoPlayer
         lateinit var playerList: ArrayList<VideoData>
         var position: Int = -1
+        var repeat: Boolean = false
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +85,19 @@ class PlayerActivity : AppCompatActivity() {
         binding.nextBtn.setOnClickListener {
             nextPrevVideo(isNext = true)
         }
+
+        binding.repeatBtn.setOnClickListener {
+            if(repeat){
+                repeat = false
+                player.repeatMode = Player.REPEAT_MODE_OFF
+                binding.repeatBtn.setImageResource(com.google.android.exoplayer2.ui.R.drawable.exo_controls_repeat_off)
+            }
+            else{
+                repeat = true
+                player.repeatMode = Player.REPEAT_MODE_ALL
+                binding.repeatBtn.setImageResource(com.google.android.exoplayer2.ui.R.drawable.exo_controls_repeat_all)
+            }
+        }
     }
     private fun createPlayer(){
         try{player.release()}catch (e: Exception){}
@@ -96,6 +111,13 @@ class PlayerActivity : AppCompatActivity() {
         player.setMediaItem(mediaItem)
         player.prepare()
 //        player.play()
+
+        player.addListener(object : Player.Listener{
+            override fun onPlaybackStateChanged(playbackState: Int){
+                super.onPlaybackStateChanged(playbackState)
+                if(playbackState == Player.STATE_ENDED && repeat) nextPrevVideo()
+            }
+        })
 
         playVideo()
     }
@@ -118,6 +140,9 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setPosition(isIncrement: Boolean = true){
+        if(repeat){
+            return
+        }
         if(isIncrement)
         {
             if(playerList.size - 1 == position)
