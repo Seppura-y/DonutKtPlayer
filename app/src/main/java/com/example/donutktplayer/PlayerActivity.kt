@@ -1,8 +1,14 @@
 package com.example.donutktplayer
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Window
+import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -18,8 +24,31 @@ class PlayerActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 应用自定义主题
+        // 需要在setContentView前调用
+        setTheme(R.style.playerActivityTheme)
+
+        // 隐藏标题栏
+        // 需要在setContentView前调用
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // 内容延伸至刘海区域
+            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        // 沉浸式 immersive mode
+        // 需要在setContentView后调用
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, binding.root).let{controller->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            // 用户可以通过滑动屏幕边缘来临时显示系统栏
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         initializeLayout()
         initializeBinding()
