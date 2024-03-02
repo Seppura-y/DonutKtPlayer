@@ -107,6 +107,7 @@
 
 
         <ImageButton
+            android:id="@+id/previousBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/previous_icon"
@@ -115,6 +116,7 @@
             app:tint="@color/white" />
 
         <ImageButton
+            android:id="@+id/nextBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/next_icon"
