@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -19,8 +20,10 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -34,6 +37,7 @@ class PlayerActivity : AppCompatActivity() {
         var repeat: Boolean = false
         var isFullscreen: Boolean = false
         var isLocked: Boolean = false
+        lateinit var trackSelector: DefaultTrackSelector
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,16 +150,40 @@ class PlayerActivity : AppCompatActivity() {
                 .setOnCancelListener{ playVideo()}
                 .setBackground(ColorDrawable(0x803700b3.toInt()))
                 .create()
-
             dialog.show()
+
+            bindingMF.audioTrack.setOnClickListener {
+                dialog.dismiss()
+                playVideo()
+
+                val audioTrack = ArrayList<String>()
+                for(i in 0 until player.currentTrackGroups.length){
+                    if(player.currentTrackGroups.get(i).getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT){
+                        audioTrack.add(Locale(player.currentTrackGroups.get(i).getFormat(0).language.toString()).displayLanguage)
+                    }
+                }
+
+                val tempTracks = audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))
+                MaterialAlertDialogBuilder(this, R.style.alertDialog)
+                    .setTitle("Select a Audio Track")
+                    .setOnCancelListener{ playVideo()}
+                    .setBackground(ColorDrawable(0x803700b3.toInt()))
+                    .setItems(tempTracks){_, position->
+                        Toast.makeText(this, audioTrack[position] + "Selected", Toast.LENGTH_SHORT).show()
+                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))
+                    }
+                    .create()
+                    .show()
+            }
         }
     }
     private fun createPlayer(){
         try{player.release()}catch (e: Exception){}
+        trackSelector = DefaultTrackSelector(this)
         binding.videoTitle.text = playerList[position].title
         // isSelected设置为true，才能开启滚动效果
         binding.videoTitle.isSelected = true
-        player = SimpleExoPlayer.Builder(this).build()
+        player = SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).build()
         binding.playerView.player = player
 
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)
