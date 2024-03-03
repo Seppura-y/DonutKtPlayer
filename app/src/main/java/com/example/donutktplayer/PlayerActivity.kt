@@ -1,10 +1,12 @@
 package com.example.donutktplayer
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -12,11 +14,13 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
+import com.example.donutktplayer.databinding.MoreFeaturesBinding
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -132,6 +136,18 @@ class PlayerActivity : AppCompatActivity() {
                 binding.playerView.useController = true
                 binding.lockBtn.setImageResource(R.drawable.unlock_icon)
             }
+        }
+
+        binding.moreFeaturesBtn.setOnClickListener {
+            pauseVideo()
+            val customDialog = LayoutInflater.from(this).inflate(R.layout.more_features, binding.root, false)
+            val bindingMF = MoreFeaturesBinding.bind(customDialog)
+            val dialog = MaterialAlertDialogBuilder(this).setView(customDialog)
+                .setOnCancelListener{ playVideo()}
+                .setBackground(ColorDrawable(0x803700b3.toInt()))
+                .create()
+
+            dialog.show()
         }
     }
     private fun createPlayer(){
