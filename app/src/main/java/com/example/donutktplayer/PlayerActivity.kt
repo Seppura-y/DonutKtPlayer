@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -30,6 +29,7 @@ class PlayerActivity : AppCompatActivity() {
         var position: Int = -1
         var repeat: Boolean = false
         var isFullscreen: Boolean = false
+        var isLocked: Boolean = false
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +116,21 @@ class PlayerActivity : AppCompatActivity() {
             }else{
                 isFullscreen = true
                 playInFullscreen(true)
+            }
+        }
+
+        binding.lockBtn.setOnClickListener {
+            if(!isLocked){
+                isLocked = true;
+                binding.playerView.hideController()
+                binding.playerView.useController = false
+                binding.lockBtn.setImageResource(R.drawable.lock_icon)
+            }
+            else{
+                isLocked = false;
+                binding.playerView.showController()
+                binding.playerView.useController = true
+                binding.lockBtn.setImageResource(R.drawable.unlock_icon)
             }
         }
     }
@@ -212,7 +227,7 @@ class PlayerActivity : AppCompatActivity() {
             }
 
             // 继续调用runnable
-            Handler(Looper.getMainLooper()).postDelayed(runnable, 300)
+            Handler(Looper.getMainLooper()).postDelayed(runnable, 30)
         }
 
         // 开始调用runnable
@@ -223,6 +238,8 @@ class PlayerActivity : AppCompatActivity() {
         binding.topContorller.visibility = visibility
         binding.bottomContorller.visibility = visibility
         binding.playPauseBtn.visibility = visibility
+        if(isLocked) binding.lockBtn.visibility = View.VISIBLE
+        else binding.lockBtn.visibility = visibility
     }
 
     override fun onDestroy() {
