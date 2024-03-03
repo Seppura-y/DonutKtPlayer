@@ -3,7 +3,10 @@ package com.example.donutktplayer
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
@@ -19,6 +22,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
+    private lateinit var runnable: Runnable
 
     companion object{
         private lateinit var player: SimpleExoPlayer
@@ -137,6 +141,7 @@ class PlayerActivity : AppCompatActivity() {
 
         playVideo()
         playInFullscreen(enable = isFullscreen)
+        setVisibility()
     }
 
     private fun playVideo(){
@@ -195,6 +200,29 @@ class PlayerActivity : AppCompatActivity() {
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
             binding.fullscreenBtn.setImageResource(R.drawable.fullscreen_icon)
         }
+    }
+
+    private fun setVisibility(){
+        runnable = Runnable {
+            if(binding.playerView.isControllerVisible){
+                changeVisibility(View.VISIBLE)
+            }
+            else{
+                changeVisibility(View.INVISIBLE)
+            }
+
+            // 继续调用runnable
+            Handler(Looper.getMainLooper()).postDelayed(runnable, 300)
+        }
+
+        // 开始调用runnable
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 0)
+    }
+
+    private fun changeVisibility(visibility: Int){
+        binding.topContorller.visibility = visibility
+        binding.bottomContorller.visibility = visibility
+        binding.playPauseBtn.visibility = visibility
     }
 
     override fun onDestroy() {
