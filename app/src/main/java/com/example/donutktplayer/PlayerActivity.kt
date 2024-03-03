@@ -10,9 +10,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -23,6 +25,7 @@ class PlayerActivity : AppCompatActivity() {
         lateinit var playerList: ArrayList<VideoData>
         var position: Int = -1
         var repeat: Boolean = false
+        var isFullscreen: Boolean = false
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +72,9 @@ class PlayerActivity : AppCompatActivity() {
                 createPlayer()
             }
         }
+
+        if(repeat) binding.repeatBtn.setImageResource(com.google.android.exoplayer2.ui.R.drawable.exo_controls_repeat_all)
+        else binding.repeatBtn.setImageResource(com.google.android.exoplayer2.ui.R.drawable.exo_controls_repeat_off)
     }
 
     private fun initializeBinding(){
@@ -98,6 +104,16 @@ class PlayerActivity : AppCompatActivity() {
                 binding.repeatBtn.setImageResource(com.google.android.exoplayer2.ui.R.drawable.exo_controls_repeat_all)
             }
         }
+
+        binding.fullscreenBtn.setOnClickListener {
+            if(isFullscreen){
+                isFullscreen = false
+                playInFullscreen(false)
+            }else{
+                isFullscreen = true
+                playInFullscreen(true)
+            }
+        }
     }
     private fun createPlayer(){
         try{player.release()}catch (e: Exception){}
@@ -120,6 +136,7 @@ class PlayerActivity : AppCompatActivity() {
         })
 
         playVideo()
+        playInFullscreen(enable = isFullscreen)
     }
 
     private fun playVideo(){
@@ -164,6 +181,19 @@ class PlayerActivity : AppCompatActivity() {
           {
             --position
           }
+        }
+    }
+
+    private fun playInFullscreen(enable: Boolean){
+        if(enable){
+            binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+            player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+            binding.fullscreenBtn.setImageResource(R.drawable.fullscreen_exit_icon)
+        }
+        else{
+            binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+            binding.fullscreenBtn.setImageResource(R.drawable.fullscreen_icon)
         }
     }
 

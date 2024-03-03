@@ -127,6 +127,7 @@
             app:tint="@color/white" />
 
         <ImageButton
+            android:id="@+id/fullscreenBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/exo_controls_fullscreen_enter"
