@@ -29,6 +29,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var runnable: Runnable
+    private var isSubtitle: Boolean = true
 
     companion object{
         private lateinit var player: SimpleExoPlayer
@@ -174,6 +175,27 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     .create()
                     .show()
+            }
+
+            bindingMF.subtitleBtn.setOnClickListener {
+                if(isSubtitle){
+                    trackSelector.parameters = DefaultTrackSelector.ParametersBuilder(this)
+                        .setRendererDisabled(C.TRACK_TYPE_VIDEO, true)
+                        .build()
+
+                    Toast.makeText(this, "Subtitles off", Toast.LENGTH_SHORT).show()
+                    isSubtitle = false
+                }else{
+                    trackSelector.parameters = DefaultTrackSelector.ParametersBuilder(this)
+                        .setRendererDisabled(C.TRACK_TYPE_VIDEO, false)
+                        .build()
+
+                    Toast.makeText(this, "Subtitles on", Toast.LENGTH_SHORT).show()
+                    isSubtitle = true
+                }
+
+                dialog.dismiss()
+                playVideo()
             }
         }
     }

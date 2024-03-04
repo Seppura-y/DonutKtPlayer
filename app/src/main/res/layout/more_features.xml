@@ -27,6 +27,7 @@
             app:iconTint="@color/white"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitleBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             app:icon="@drawable/subtitles_icon"
