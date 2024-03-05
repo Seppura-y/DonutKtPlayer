@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
 import com.example.donutktplayer.databinding.BoosterBinding
 import com.example.donutktplayer.databinding.MoreFeaturesBinding
+import com.example.donutktplayer.databinding.SpeedDialogBinding
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import java.text.DecimalFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
@@ -45,6 +47,9 @@ class PlayerActivity : AppCompatActivity() {
         private var isLocked: Boolean = false
         private lateinit var trackSelector: DefaultTrackSelector
         private lateinit var loudnessEnhancer: LoudnessEnhancer
+
+        private var speed: Float = 1.0f
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -240,10 +245,39 @@ class PlayerActivity : AppCompatActivity() {
                     bindingBooster.progressText.text = "Audio Boost\n\n${it*10}%"
                 }
             }
+
+            bindingMF.speedBtn.setOnClickListener {
+                dialog.dismiss()
+                playVideo()
+
+                val speedDialogView = LayoutInflater.from(this).inflate(R.layout.speed_dialog, binding.root, false)
+                val bindingSpeed = SpeedDialogBinding.bind(speedDialogView)
+                val speedDialog = MaterialAlertDialogBuilder(this).setView(speedDialogView)
+                    .setCancelable(false)
+                    .setPositiveButton("OK"){self, _->
+                        self.dismiss()
+                    }
+                    .setBackground(ColorDrawable(0x803700b3.toInt()))
+                    .create()
+
+                speedDialog.show()
+
+                bindingSpeed.speedText.text = "${DecimalFormat("#.##").format(speed)} X"
+                bindingSpeed.minusBtn.setOnClickListener {
+                    changeSpeed(isIncrement = false)
+                    bindingSpeed.speedText.text = "${DecimalFormat("#.##").format(speed)} X"
+                }
+
+                bindingSpeed.plusBtn.setOnClickListener {
+                    changeSpeed(isIncrement = true)
+                    bindingSpeed.speedText.text = "${DecimalFormat("#.##").format(speed)} X"
+                }
+            }
         }
     }
     private fun createPlayer(){
         try{player.release()}catch (e: Exception){}
+        speed = 1.0f
         trackSelector = DefaultTrackSelector(this)
         binding.videoTitle.text = playerList[position].title
         // isSelected设置为true，才能开启滚动效果
@@ -286,6 +320,20 @@ class PlayerActivity : AppCompatActivity() {
         else setPosition(isIncrement = false)
 
         createPlayer()
+    }
+
+    private fun changeSpeed(isIncrement: Boolean){
+        if(isIncrement){
+            if(speed <= 2.9f){
+                speed += 0.10f
+            }
+        }else{
+            if(speed >= 0.2f) {
+                speed -= 0.10f
+            }
+        }
+
+        player.setPlaybackSpeed(speed)
     }
 
     private fun setPosition(isIncrement: Boolean = true){
