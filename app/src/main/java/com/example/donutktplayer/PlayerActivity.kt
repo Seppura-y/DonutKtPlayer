@@ -3,6 +3,7 @@ package com.example.donutktplayer
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.audiofx.LoudnessEnhancer
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.donutktplayer.databinding.ActivityPlayerBinding
+import com.example.donutktplayer.databinding.BoosterBinding
 import com.example.donutktplayer.databinding.MoreFeaturesBinding
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
@@ -38,10 +40,11 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var player: SimpleExoPlayer
         lateinit var playerList: ArrayList<VideoData>
         var position: Int = -1
-        var repeat: Boolean = false
-        var isFullscreen: Boolean = false
-        var isLocked: Boolean = false
-        lateinit var trackSelector: DefaultTrackSelector
+        private var repeat: Boolean = false
+        private var isFullscreen: Boolean = false
+        private var isLocked: Boolean = false
+        private lateinit var trackSelector: DefaultTrackSelector
+        private lateinit var loudnessEnhancer: LoudnessEnhancer
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -216,6 +219,27 @@ class PlayerActivity : AppCompatActivity() {
                 dialog.dismiss()
                 playVideo()
             }
+
+            bindingMF.audioBoosterBtn.setOnClickListener {
+                dialog.dismiss()
+                val customDialog = LayoutInflater.from(this).inflate(R.layout.booster, binding.root, false)
+                val bindingBooster = BoosterBinding.bind(customDialog)
+                val dialogBooster = MaterialAlertDialogBuilder(this).setView(customDialog)
+                    .setOnCancelListener{ playVideo()}
+                    .setPositiveButton("OK"){self, _->
+                        loudnessEnhancer.setTargetGain(bindingBooster.verticalBar.progress * 100)
+                        playVideo()
+                        self.dismiss()
+                    }
+                    .setBackground(ColorDrawable(0x803700b3.toInt()))
+                    .create()
+                dialogBooster.show()
+                bindingBooster.verticalBar.progress = loudnessEnhancer.targetGain.toInt() / 100
+                bindingBooster.progressText.text = "Audio Boost\n\n${loudnessEnhancer.targetGain.toInt() / 10}%"
+                bindingBooster.verticalBar.setOnProgressChangeListener {
+                    bindingBooster.progressText.text = "Audio Boost\n\n${it*10}%"
+                }
+            }
         }
     }
     private fun createPlayer(){
@@ -242,6 +266,9 @@ class PlayerActivity : AppCompatActivity() {
         playVideo()
         playInFullscreen(enable = isFullscreen)
         setVisibility()
+
+        loudnessEnhancer = LoudnessEnhancer(player.audioSessionId)
+        loudnessEnhancer.enabled = true
     }
 
     private fun playVideo(){
