@@ -31,6 +31,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.system.exitProcess
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -49,7 +52,7 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var loudnessEnhancer: LoudnessEnhancer
 
         private var speed: Float = 1.0f
-
+        private var timer: Timer? = null
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -272,6 +275,46 @@ class PlayerActivity : AppCompatActivity() {
                     changeSpeed(isIncrement = true)
                     bindingSpeed.speedText.text = "${DecimalFormat("#.##").format(speed)} X"
                 }
+            }
+
+
+            bindingMF.sleepTimerBtn.setOnClickListener {
+                dialog.dismiss()
+                if(timer != null) Toast.makeText(this, "Timer Already Running\nClose App to Reset TImer.", Toast.LENGTH_SHORT).show()
+                else {
+                    var sleepTime = 15
+
+                    val speedDialogView = LayoutInflater.from(this).inflate(R.layout.speed_dialog, binding.root, false)
+                    val bindingSpeed = SpeedDialogBinding.bind(speedDialogView)
+                    val speedDialog = MaterialAlertDialogBuilder(this).setView(speedDialogView)
+                        .setCancelable(false)
+                        .setPositiveButton("OK"){self, _->
+                            timer = Timer()
+                            val task = object: TimerTask(){
+                                override fun run() {
+                                    moveTaskToBack(true)
+                                    exitProcess(1)
+                                }
+                            }
+                            timer!!.schedule(task, sleepTime * 1000.toLong())
+                            self.dismiss()
+                            playVideo()
+                        }
+                        .setBackground(ColorDrawable(0x803700b3.toInt()))
+                        .create()
+
+                    speedDialog.show()
+
+                    bindingSpeed.speedText.text = "$sleepTime Min"
+                    bindingSpeed.minusBtn.setOnClickListener {
+                        if(sleepTime > 5) sleepTime -= 5
+                        bindingSpeed.speedText.text = "$sleepTime Min"
+                    }
+
+                    bindingSpeed.plusBtn.setOnClickListener {
+                        if(sleepTime < 120) sleepTime += 5
+                        bindingSpeed.speedText.text = "$sleepTime Min"
+                    }}
             }
         }
     }
