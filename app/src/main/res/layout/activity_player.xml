@@ -73,6 +73,35 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="horizontal"
+    android:gravity="center"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <FrameLayout
+        android:id="@+id/rewindFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+<!--        android:foreground="?android:selectableItemBackground">-->
+        <ImageButton
+            android:id="@+id/rewindBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/rewind_button"
+            android:src="@drawable/rewind_icon"
+            app:tint="@color/white"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
     <ImageButton
         android:id="@+id/playPauseBtn"
         android:layout_width="100dp"
@@ -87,6 +116,32 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?android:selectableItemBackground"/>
+
+    <FrameLayout
+        android:id="@+id/forwardFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+<!--        android:foreground="?android:selectableItemBackground">-->
+        <ImageButton
+            android:id="@+id/forwardBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/forward_button"
+            android:src="@drawable/forward_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/white"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+
+</LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottomContorller"

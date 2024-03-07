@@ -27,9 +27,9 @@ import com.example.donutktplayer.databinding.BoosterBinding
 import com.example.donutktplayer.databinding.MoreFeaturesBinding
 import com.example.donutktplayer.databinding.SpeedDialogBinding
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,9 +45,9 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var runnable: Runnable
     private var isSubtitle: Boolean = true
-
+    private var moreTime: Int = 0
     companion object{
-        private lateinit var player: SimpleExoPlayer
+        private lateinit var player: ExoPlayer
         lateinit var playerList: ArrayList<VideoData>
         var position: Int = -1
         private var repeat: Boolean = false
@@ -91,6 +91,27 @@ class PlayerActivity : AppCompatActivity() {
 
         initializeLayout()
         initializeBinding()
+
+        binding.forwardFrameLayout.setOnClickListener(DoubleClickListener(callback = object :DoubleClickListener.Callback{
+            override fun doubleClicked() {
+//                binding.playerView.showController()
+                binding.forwardBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition + 10000)
+
+                moreTime = 0
+            }
+        }))
+
+
+        binding.rewindFrameLayout.setOnClickListener(DoubleClickListener(callback = object :DoubleClickListener.Callback{
+            override fun doubleClicked() {
+//                binding.playerView.showController()
+                binding.rewindBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition - 10000)
+
+                moreTime = 0
+            }
+        }))
     }
 
     private fun initializeLayout(){
@@ -365,7 +386,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.videoTitle.text = playerList[position].title
         // isSelected设置为true，才能开启滚动效果
         binding.videoTitle.isSelected = true
-        player = SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).build()
+        player = ExoPlayer.Builder(this).setTrackSelector(trackSelector).build()
         binding.playerView.player = player
 
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)
@@ -483,6 +504,16 @@ class PlayerActivity : AppCompatActivity() {
         binding.playPauseBtn.visibility = visibility
         if(isLocked) binding.lockBtn.visibility = View.VISIBLE
         else binding.lockBtn.visibility = visibility
+
+        if(moreTime == 2){
+            binding.rewindBtn.visibility = View.GONE
+            binding.forwardBtn.visibility = View.GONE
+        }else{
+            moreTime++
+        }
+
+//        binding.rewindFrameLayout.visibility = visibility
+//        binding.forwardFrameLayout.visibility = visibility
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
