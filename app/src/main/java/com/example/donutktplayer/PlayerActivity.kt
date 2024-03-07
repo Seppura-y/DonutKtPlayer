@@ -3,22 +3,22 @@ package com.example.donutktplayer
 import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Process
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -58,6 +58,8 @@ class PlayerActivity : AppCompatActivity() {
 
         private var speed: Float = 1.0f
         private var timer: Timer? = null
+
+        var pipStatus: Int = 0
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -322,34 +324,38 @@ class PlayerActivity : AppCompatActivity() {
                     }}
             } // bindingMF.sleepTimerBtn.setOnClickListener
 
-            bindingMF.pipModeBtn.setOnClickListener {
-                val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-                val status = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    appOps.checkOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, android.os.Process.myUid(), packageName) == AppOpsManager.MODE_ALLOWED
-                } else {
-                    false
+            bindingMF.pipModeBtn.setOnClickListener(View.OnClickListener {
+                val appOpsManager = getSystemService(APP_OPS_SERVICE) as AppOpsManager
+                var status = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    status = appOpsManager.checkOpNoThrow(
+                        AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
+                        Process.myUid(),
+                        packageName
+                    ) == AppOpsManager.MODE_ALLOWED
                 }
-
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     if (status) {
-                        this.enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+                        enterPictureInPictureMode(PictureInPictureParams.Builder().build())
                         dialog.dismiss()
                         binding.playerView.hideController()
                         playVideo()
-                    }
-                    else{
-                        val intent = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS",
-                            Uri.parse("package:$packageName"))
-
+                        pipStatus = 0
+                    } else {
+                        val intent = Intent(
+                            "android.settings.PICTURE_IN_PICTURE_SETTINGS",
+                            Uri.parse("package:$packageName")
+                        )
                         startActivity(intent)
                     }
-                }else{
-                    Toast.makeText(this, "Feature Not Supported", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(applicationContext, "Feature Not Supported", Toast.LENGTH_SHORT)
+                        .show()
                     dialog.dismiss()
                     playVideo()
                 }
+            }) // mf_binding.pipModeBtn.setOnClickListener
 
-            } //bindingMF.pipModeBtn.setOnClickListener
         }
     }
     private fun createPlayer(){
@@ -477,6 +483,34 @@ class PlayerActivity : AppCompatActivity() {
         binding.playPauseBtn.visibility = visibility
         if(isLocked) binding.lockBtn.visibility = View.VISIBLE
         else binding.lockBtn.visibility = visibility
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode)
+        if (pipStatus != 0) {
+            finish()
+            val intent = Intent(applicationContext, PlayerActivity::class.java)
+            when (pipStatus) {
+                1 -> intent.putExtra("class", "FolderActivity")
+                2 -> intent.putExtra("class", "AllVideos")
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            applicationContext.startActivity(intent)
+        }
+        else{
+            playVideo()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        player.pause()
+        binding.playerView.hideController()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        player.play()
     }
 
     override fun onDestroy() {
